@@ -53,12 +53,12 @@
     }
   ],
   "paths": {
-    "/hijridate/{date}": {
+    "/hijridate/{date}/calendar/{calendarid}": {
       "summary": "To be used for all Hijri date calculations",
       "get": {
         "summary": "Hijri Date API - Used to get Hijri date for a given Gregorian date. Also used to create mappings between hijri and Greogrian date",
         "description": "Returns the Hijri Date based on the provided date and calculation type. ",
-        "operationId": "get-hijridate",
+        "operationId": "get-hijridate-by-calendar-id",
         "responses": {
           "200": {
             "description": "Default response",
@@ -123,10 +123,6 @@
             "description": "Invalid URL"
           }
         },
-        "tags": [
-          "user",
-          "Hijri"
-        ],
         "requestBody": {},
         "parameters": [
           {
@@ -134,36 +130,37 @@
               "type": "boolean"
             },
             "in": "query",
-            "name": "pastSunset",
+            "name": "pastsunset",
             "required": true,
             "description": "If it is pastSunset from client standpoint."
-          },
+          }
+        ],
+        "tags": [
+          "Hijri"
+        ],
+        "security": [
           {
-            "schema": {
-              "type": "string",
-              "enum": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5"
-              ]
-            },
-            "in": "query",
-            "name": "calendar_id"
+            "apikey": []
           }
         ]
       },
       "parameters": [
         {
           "schema": {
-            "type": "string",
-            "pattern": "YYYYMMDD"
+            "type": "string"
           },
           "name": "date",
           "in": "path",
           "required": true,
           "description": "Date to be convereted to hijri"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "calendarid",
+          "in": "path",
+          "required": true
         }
       ],
       "post": {
@@ -254,7 +251,7 @@
           "user",
           "salahniqama"
         ],
-        "operationId": "get-salahandiqamatime",
+        "operationId": "get-salahandiqamatime-day",
         "description": "Salah and Iqamah time API to be used to fetch for any masjid",
         "responses": {
           "200": {
@@ -354,7 +351,7 @@
             }
           }
         },
-        "operationId": "get-salahandiqamatime",
+        "operationId": "get-salahandiqamatime-month",
         "description": "",
         "parameters": []
       },
@@ -762,7 +759,7 @@
             }
           }
         },
-        "operationId": "get-masjids",
+        "operationId": "get-masjids-by-id",
         "description": "This API is to be used for most common functions for a Masjid. This includes current time based on timezone of the masjid along with number of other details of the masjid. API also includes Next Iqamah Change"
       },
       "parameters": [
@@ -1598,8 +1595,7 @@
           },
           "date": {
             "type": "string",
-            "format": "date",
-            "example": "YYYYMMDD"
+            "format": "date"
           },
           "calendar_id": {
             "$ref": "#/components/schemas/CalendarID"
@@ -1751,20 +1747,23 @@
       "MasjidiTime": {
         "type": "string",
         "title": "MasjidiTime",
-        "format": "time",
-        "example": "08:00 PM",
         "description": "Salah or Iqamah time in the format h:i a (Per PHP)",
-        "x-examples": {
-          "example-1": {}
-        }
+        "example": "08:00 PM"
       },
       "MasjidiDate": {
         "title": "MasjidiDate",
         "type": "object",
+        "x-examples": {
+          "Masjidi Date": {
+            "date": "2019-02-01 00:00:00.000000",
+            "timezone_type": 3,
+            "timezone": "America/Los_Angeles"
+          }
+        },
+        "description": "Date to be used across all APIs",
         "properties": {
           "date": {
             "type": "string",
-            "format": "date-time",
             "example": "2019-02-01 00:00:00.000000"
           },
           "timezone_type": {
@@ -1780,15 +1779,7 @@
           "date",
           "timezone_type",
           "timezone"
-        ],
-        "x-examples": {
-          "Masjidi Date": {
-            "date": "2019-02-01 00:00:00.000000",
-            "timezone_type": 3,
-            "timezone": "America/Los_Angeles"
-          }
-        },
-        "description": "Date to be used across all APIs"
+        ]
       },
       "IqamaConfiguration": {
         "title": "IqamaConfiguration",
