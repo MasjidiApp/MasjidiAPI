@@ -48,7 +48,7 @@ Iqama is the time when salah starts at the masjid. The rules on this varry acros
 Hijri dates are challenging because each community/family follows a different method. Our objective is to be support some widely accepted methods and let Individuals/Masjids pick which method they follow. API will provide details on the source, method and if the date is calculated or predicted. 
 
 # Authentication/Authorization
-All Masjidi APIs will be protected using an Authentication Token to be used to identify the called. Updates to data (referred as admin functions), will requier authorization to the object being updated.
+All Masjidi APIs will be protected using an Authentication Token to be used to identify the called. Updates to data (referred as admin functions), will requier authorization to the object being updated. To request API key, please contact us on WhatsApp. https://wa.me/15305086624. In our test environment, API Key 123-test-key can be used for any API. 
 
 # API Browser and Console
 Masjidi API is available at following URL:
