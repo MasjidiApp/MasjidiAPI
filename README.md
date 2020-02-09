@@ -53,7 +53,7 @@ All Masjidi APIs will be protected using an Authentication Token to be used to i
 # API Browser and Console
 Masjidi API is available at following URL:
 
-https://stoplight.io/p/docs/gh/um-developer/masjidiapi
+https://apidocs.masjidiapp.com/
 
 Please feel free to playaround using the API Console. If you have any comments or suggestions, please open a PR(for proposed changes) or Issue on GitHub. 
 
