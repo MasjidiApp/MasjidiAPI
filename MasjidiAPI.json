@@ -1,0 +1,2438 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "https://api.masjidiapp.com/v2",
+      "variables": {},
+      "description": "Production API"
+    },
+    {
+      "description": "Development API",
+      "url": "https://api.masjidiapp.com/dev-v2"
+    },
+    {
+      "description": "Local Machine",
+      "url": "http://localhost:8888/salahtime/src/api/masjidi/v1"
+    }
+  ],
+  "info": {
+    "description": "Masjidi API Definition. This is an attempt to build first Open API platform for masjids. ",
+    "version": "0.1",
+    "title": "Masjidi API",
+    "termsOfService": "www.masjidiapp.com",
+    "contact": {
+      "email": "developer@masjidiapp.com",
+      "name": "Masjidi",
+      "url": "www.masjidiapp.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "tags": [
+    {
+      "name": "Hijri",
+      "description": "APIs related to hijri date"
+    },
+    {
+      "name": "salahniqama",
+      "description": "APIs related to fetching salah and iqama times"
+    }
+  ],
+  "paths": {
+    "/hijridate/{date}/calendar/{calendarid}": {
+      "summary": "To be used for all Hijri date calculations",
+      "get": {
+        "summary": "Hijri Date API - Used to get Hijri date for a given Gregorian date. Also used to create mappings between hijri and Greogrian date",
+        "description": "Returns the Hijri Date based on the provided date and calculation type. ",
+        "operationId": "get-hijridate-by-calendar-id",
+        "responses": {
+          "200": {
+            "description": "Default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HijriDate"
+                  }
+                },
+                "examples": {
+                  "Example when calenderID is pass": {
+                    "value": [
+                      {
+                        "day": 1,
+                        "month": 1,
+                        "year": 1443,
+                        "monthName": "muharram",
+                        "monthnameArabic": "محرم",
+                        "status": "sighted",
+                        "date": "20191202",
+                        "calendarID": "1"
+                      }
+                    ]
+                  },
+                  "With no Calendar ID": {
+                    "value": [
+                      {
+                        "day": 1,
+                        "month": 1,
+                        "year": 1443,
+                        "monthName": "muharram",
+                        "monthnameArabic": "محرم",
+                        "status": "sighted",
+                        "date": "20191202",
+                        "calendarID": "1"
+                      },
+                      {
+                        "day": 2,
+                        "month": 1,
+                        "year": 1443,
+                        "monthName": "muharram",
+                        "monthnameArabic": "محرم",
+                        "status": "sighted",
+                        "date": "20191202",
+                        "calendarID": "2"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Invalid URL"
+          }
+        },
+        "requestBody": {},
+        "parameters": [
+          {
+            "schema": {
+              "type": "boolean"
+            },
+            "in": "query",
+            "name": "pastsunset",
+            "required": true,
+            "description": "If it is pastSunset from client standpoint."
+          }
+        ],
+        "tags": [
+          "Hijri"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "date",
+          "in": "path",
+          "required": true,
+          "description": "Date to be convereted to hijri"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "calendarid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Used to create new mapping between greogrian date and hijri date",
+        "operationId": "post-hijridate-date-calendarID-pastSunset",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        },
+        "description": "API to post mapping between Gregorian and hijri dates",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hijri_month": {
+                    "type": "string"
+                  },
+                  "hijri_year": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "hijri_month",
+                  "hijri_year"
+                ]
+              },
+              "examples": {
+                "Basic Example": {
+                  "value": {
+                    "hijri_month": "2",
+                    "hijri_year": "1443"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Month and year to be recorded"
+        },
+        "tags": [
+          "Hijri"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BEGIN",
+                "END"
+              ]
+            },
+            "in": "query",
+            "name": "beginend",
+            "description": "Indicate beginning or end of the month. Value should either be BEGIN or END",
+            "required": true
+          }
+        ]
+      },
+      "delete": {
+        "summary": "Used to delete mapping between hijri and greogian date",
+        "operationId": "delete-hijridate-date-calendarID-pastSunset",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "description": "Used to delete a mapping between Gregorian and Hijri date",
+        "tags": [
+          "Hijri"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "calendar_id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ]
+      }
+    },
+    "/masjids/{masjidId}/salahandiqamatime/day/{date}": {
+      "get": {
+        "summary": "API To retreive salah and Iqamah time based on provided date",
+        "operationId": "get-salahandiqamatime-day",
+        "description": "Salah and Iqamah time API to be used to fetch for any masjid",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalahAndIqamahTime"
+                },
+                "examples": {
+                  "Salah And Iqamah Time Example": {
+                    "value": {
+                      "fajr_start_time": "05:57 am",
+                      "shuruq": "07:11 am",
+                      "zuhr_start_time": "12:21 pm",
+                      "asr_start_time": "03:52 pm",
+                      "magrib_start_time": "05:35 pm",
+                      "isha_start_time": "06:46 pm",
+                      "date": {
+                        "date": "2019-02-01 00:00:00.000000",
+                        "timezone_type": 3,
+                        "timezone": "America/Los_Angeles"
+                      },
+                      "hijri_date": {
+                        "day": 1,
+                        "month": 1,
+                        "year": 1443,
+                        "monthName": "muharram",
+                        "monthnameArabic": "محرم",
+                        "status": "sighted",
+                        "date": "20191202",
+                        "calendarID": "1"
+                      },
+                      "fajr_iqama": "06:30 AM",
+                      "zuhr_iqama": "01:00 PM",
+                      "asr_iqama": "04:15 PM",
+                      "maghrib_iqama": "5:30 PM",
+                      "isha_iqama": "08:00 PM",
+                      "jumma": [
+                        {
+                          "jumma_azan": "12:30 PM",
+                          "jumma_iqama": "01:00 PM"
+                        },
+                        {
+                          "jumma_azan": "02:30 PM",
+                          "jumma_iqama": "03:00 PM"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SalahAndIqama"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string",
+            "pattern": "YYYYMMDD"
+          },
+          "name": "date",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/masjids/{masjidId}/salahandiqamatime/month/{year}/{month}": {
+      "get": {
+        "summary": "API To retreive salah and Iqamah time for the month based on provided date",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SalahAndIqamahTime"
+                  }
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "operationId": "get-salahandiqamatime-month",
+        "description": "",
+        "parameters": [],
+        "tags": [
+          "SalahAndIqama"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "year",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "month",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/masjids/{masjidId}/salahandiqamatime/week/{date}": {
+      "get": {
+        "summary": "API To retreive salah and Iqamah time for the week based on provided date",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SalahAndIqamahTime"
+                  }
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "operationId": "get-salahandiqamatime",
+        "tags": [
+          "SalahAndIqama"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "date",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/masjidis/{masjidId}/masjidhijridate/{date}": {
+      "get": {
+        "summary": "API To retreive salah and Iqamah time based on provided masjid id",
+        "tags": [
+          "Hijri"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HijriDate"
+                },
+                "examples": {}
+              }
+            }
+          }
+        },
+        "operationId": "get-masjidhijridate",
+        "description": "Returns the Hijri date for the masjid",
+        "parameters": [],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "date",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/masjids/{id}": {
+      "get": {
+        "summary": "Masjid Salah And Iqamah time",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "masjid_id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "address": {
+                      "type": "string"
+                    },
+                    "city": {
+                      "type": "string"
+                    },
+                    "state": {
+                      "type": "string"
+                    },
+                    "zip": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "string"
+                    },
+                    "phone_number": {
+                      "type": "string"
+                    },
+                    "timezone": {
+                      "type": "string"
+                    },
+                    "denomination": {
+                      "type": "string"
+                    },
+                    "contact_email": {
+                      "type": "string"
+                    },
+                    "web_url": {
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "type": "string"
+                    },
+                    "longitude": {
+                      "type": "string"
+                    },
+                    "supported": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "fajr_start_time": {
+                      "type": "string"
+                    },
+                    "fajr_iqama_time": {
+                      "type": "string"
+                    },
+                    "shuruq": {
+                      "type": "string"
+                    },
+                    "zuhr_start_time": {
+                      "type": "string"
+                    },
+                    "zuhr_iqama_time": {
+                      "type": "string"
+                    },
+                    "asr_start_time": {
+                      "type": "string"
+                    },
+                    "asr_iqama_time": {
+                      "type": "string"
+                    },
+                    "magrib_start_time": {
+                      "type": "string"
+                    },
+                    "isha_start_time": {
+                      "type": "string"
+                    },
+                    "isha_iqama_time": {
+                      "type": "string"
+                    },
+                    "jumma1_azan": {
+                      "type": "string"
+                    },
+                    "jumma1_iqama": {
+                      "type": "string"
+                    },
+                    "jumma2_azan": {
+                      "type": "string"
+                    },
+                    "jumma2_iqama": {
+                      "type": "string"
+                    },
+                    "time_for": {
+                      "type": "string"
+                    },
+                    "last_updated": {
+                      "type": "string"
+                    },
+                    "last_updated_by": {
+                      "type": "string"
+                    },
+                    "created_date": {
+                      "type": "string"
+                    },
+                    "created_by": {
+                      "type": "string"
+                    },
+                    "acquire_type": {
+                      "type": "string"
+                    },
+                    "announcement": {
+                      "type": "string"
+                    },
+                    "masjid_logo": {
+                      "type": "string"
+                    },
+                    "hijri_date_offset": {
+                      "type": "string"
+                    },
+                    "magrib_iqama_time": {
+                      "type": "string"
+                    },
+                    "last_iqamah_time_change": {
+                      "type": "string"
+                    },
+                    "last_server_iqamah_time_change": {
+                      "type": "string"
+                    },
+                    "hijri_date": {
+                      "type": "string"
+                    },
+                    "timezone_for_masjid": {
+                      "type": "string"
+                    },
+                    "masjid_preferences": {
+                      "type": "object",
+                      "properties": {
+                        "masjidImg": {
+                          "type": "string"
+                        },
+                        "live_broadcast_page": {
+                          "type": "string"
+                        },
+                        "archive_url": {
+                          "type": "string"
+                        },
+                        "short_name": {
+                          "type": "string"
+                        },
+                        "donate_url": {
+                          "type": "string"
+                        },
+                        "iqamah_calendar_config": {
+                          "type": "object",
+                          "properties": {
+                            "stop_eating": {
+                              "type": "string"
+                            },
+                            "show_stop_eating": {
+                              "type": "string"
+                            },
+                            "show_ramadan_duas": {
+                              "type": "string"
+                            },
+                            "ramadan_month": {
+                              "type": "string"
+                            },
+                            "theme_color": {
+                              "type": "string"
+                            },
+                            "embed_iqamah_in_calendar": {
+                              "type": "string"
+                            },
+                            "show_hidayat": {
+                              "type": "string"
+                            },
+                            "highlight_changeDay": {
+                              "type": "string"
+                            },
+                            "show_web_address": {
+                              "type": "string"
+                            },
+                            "show_hijri": {
+                              "type": "string"
+                            },
+                            "show_am_pm": {
+                              "type": "string"
+                            },
+                            "show_premonth_iqamah_time": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Exmple with Iqama times": {
+                    "value": {
+                      "id": "238",
+                      "masjid_id": "3443",
+                      "title": "Islamic Center of Fremont",
+                      "address": "4039 Irvington Avenue",
+                      "city": "Fremont",
+                      "state": "CA",
+                      "zip": "94538",
+                      "country": "us",
+                      "phone_number": "(510) 661-0352",
+                      "timezone": "-8.0",
+                      "denomination": "Sunni (Traditional)",
+                      "contact_email": "",
+                      "web_url": "http://www.icfbayarea.org",
+                      "latitude": "37.5313911",
+                      "longitude": "-121.9596863",
+                      "supported": "1",
+                      "display": "1",
+                      "fajr_start_time": "06:01 am",
+                      "fajr_iqama_time": "06:30 am",
+                      "shuruq": "07:16 am",
+                      "zuhr_start_time": "12:20 pm",
+                      "zuhr_iqama_time": "01:00 pm",
+                      "asr_start_time": "03:45 pm",
+                      "asr_iqama_time": "04:00 pm",
+                      "magrib_start_time": "05:28 pm",
+                      "isha_start_time": "06:40 pm",
+                      "isha_iqama_time": "08:00 pm",
+                      "jumma1_azan": "",
+                      "jumma1_iqama": "",
+                      "jumma2_azan": "",
+                      "jumma2_iqama": "",
+                      "time_for": "",
+                      "last_updated": "26 Jan 2020 02:44 AM",
+                      "last_updated_by": null,
+                      "created_date": null,
+                      "created_by": null,
+                      "acquire_type": "IQAMA_UNIFIED",
+                      "announcement": "Reminder: AsalamWalaykum, be mindful of Jummah Timing change starting Dec. 6th. There will be only one Jummah at ICF: Start at 1:00pm & Iqamah at 1:30. ‎جزاك الله خير ",
+                      "masjid_logo": "https://pbs.twimg.com/profile_images/378800000859780242/fGjmzo_H_normal.jpeg",
+                      "audio_broadcast_url": null,
+                      "masjid_preferences": {
+                        "masjidImg": "https://bamcgroup7.weebly.com/uploads/2/4/8/4/24845107/5806148.jpg?1385281168",
+                        "live_broadcast_page": "http://mixlr.com/icfbayaans/",
+                        "archive_url": "http://mixlr.com/icfbayaans/showreel/",
+                        "short_name": "ICF",
+                        "donate_url": "https://www.paypal.com/donate/?token=V5NiIsoqQ7WHv_to9rflZZWCGiAN2rL4gX7wrfOi95NbdgAJfjZtJCyGgjAg4ne6EwQE8G&country.x=US&locale.x=US",
+                        "iqamah_calendar_config": {
+                          "stop_eating": 10,
+                          "show_stop_eating": true,
+                          "show_ramadan_duas": false,
+                          "ramadan_month": 5,
+                          "theme_color": "#9bbb59",
+                          "embed_iqamah_in_calendar": false,
+                          "show_hidayat": false,
+                          "highlight_changeDay": false,
+                          "show_web_address": false,
+                          "show_hijri": false,
+                          "show_am_pm": false,
+                          "show_premonth_iqamah_time": false,
+                          "show_postmonth_iqamah_time": false
+                        }
+                      },
+                      "hijri_date_offset": 0,
+                      "magrib_iqama_time": "05:28 pm",
+                      "last_iqamah_time_change": "",
+                      "last_server_iqamah_time_change": "",
+                      "hijri_date": "Jumada II 1st",
+                      "timezone_for_masjid": "America/Los_Angeles"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-masjids-by-id",
+        "description": "This API is to be used for most common functions for a Masjid. This includes current time based on timezone of the masjid along with number of other details of the masjid. API also includes Next Iqamah Change",
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Masjid ID"
+        }
+      ]
+    },
+    "/salahsettings/defaultsetting/{countrycode}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "name": "countrycode",
+          "in": "path",
+          "description": "Country code in ISO 3166-1 alpha-2 code.",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Get Default Salah Settings for a country",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalahSetting"
+                },
+                "examples": {
+                  "Basic example": {
+                    "value": {
+                      "calculationMethod": "2",
+                      "asrMethod": "1",
+                      "fajrAngle": "15",
+                      "ishaAngle": "15",
+                      "zuhrOffset": "5",
+                      "maghribOffset": "2"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-salahsettings-countrycode",
+        "description": "Default Salah calculation settings for masjid based on country",
+        "requestBody": {
+          "description": ""
+        },
+        "tags": [
+          "Salah"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/masjidis/{masjidId}/salahandiqamatime/monthsummary/{year}/{month}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "year",
+          "in": "path",
+          "required": true
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "month",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Summary View of the Monthly Salah And Iqamah Time",
+        "responses": {},
+        "operationId": "get-masjidis-masjidId-salahandiqamatime-monthsummary-year-month",
+        "description": "Summary View for the month. For Predictive and Manual it is based on the rules and entires. For calculated it is not supported yet. ",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "iqama_date": {
+                      "type": "string"
+                    },
+                    "fajr_iqama": {
+                      "type": "string"
+                    },
+                    "dhuhr": {
+                      "type": "string"
+                    },
+                    "asr": {
+                      "type": "string"
+                    },
+                    "maghrib": {
+                      "type": "string"
+                    },
+                    "isha": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "Basic example": {
+                  "value": {
+                    "iqama_date": "2020-04-17",
+                    "fajr_iqama": "05:45 am",
+                    "dhuhr": "01:30 pm",
+                    "asr": "06:30 pm",
+                    "maghrib": "",
+                    "isha": "09:30 pm"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "SalahAndIqama"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/masjids": {
+      "get": {
+        "summary": "Retrieve list of Masjids for provided parameters and search key",
+        "tags": [
+          "Masjid"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Masjid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-masjids",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "lat",
+            "description": "Latitude for search parameter"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "long",
+            "description": "Longitude for search parameter"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "dist",
+            "description": "Distance for search radius"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "Maximum number of search results to be returned. Server maximum is 100"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "searchKey",
+            "description": "Search string to be used to filter results. This could be City, State, Zip etc. This API uses Google API search in the backend. So any search string that would work with Google Place should be suffient"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "masjidname",
+            "description": "Filter by masjid name. "
+          }
+        ],
+        "description": "All of the Query string parameters can be combined together to have comprehensive filtering capability on the search result",
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create a new Masjid",
+        "responses": {},
+        "operationId": "post-masjids",
+        "description": "End point to create new masjids in Masjidi Database. This API does try to detect duplicates and block. Additionally each masjid added is manually reviewed and maybe deleted. Long/Lat are automatically calcualted from address",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "zip": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "phone_number": {
+                    "type": "string"
+                  },
+                  "masjid_log": {
+                    "type": "string"
+                  }
+                }
+              },
+              "examples": {
+                "Basic Example": {
+                  "value": {
+                    "title": "THIS IS A TEST MASJID",
+                    "address": "4140 Irvington Avenue",
+                    "city": "Fremont",
+                    "state": "CA",
+                    "zip": "94538",
+                    "country": "US",
+                    "phone_number": "888-999-1234",
+                    "masjid_logo": "http://mymasjid.logo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ]
+      }
+    },
+    "/masjids/{masjidid}/iqamaconfig": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidid",
+          "in": "path",
+          "required": true,
+          "description": "Masjid ID to be updated."
+        }
+      ],
+      "get": {
+        "summary": "API to get the current Iqama Configuration Object for the masjid",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IqamaConfiguration"
+                },
+                "examples": {
+                  "Basic Configuration": {
+                    "value": {
+                      "GeneralConfig": {
+                        "IqamaChangeDay": "5",
+                        "IqamaChangeFrequency": 7,
+                        "IqamahChangeDates": []
+                      },
+                      "Fajr": {
+                        "SalahRules": [
+                          {
+                            "Type": "Predictive",
+                            "Applicable": "AllYear",
+                            "FromEndOfSalah": true,
+                            "MinGap": 27,
+                            "ChangeBy": 15,
+                            "MinTime": "5:00",
+                            "MaxTime": "6:30"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "Ramadaan"
+                          }
+                        ]
+                      },
+                      "Duhr": {
+                        "SalahRules": [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:00"
+                          }
+                        ]
+                      },
+                      "Asr": {
+                        "SalahRules": [
+                          {
+                            "FromEndOfSalah": true,
+                            "MinGap": 75,
+                            "ChangeBy": 15,
+                            "MinTime": "15:30",
+                            "MaxTime": "18:30",
+                            "Type": "Predictive",
+                            "Applicable": "DST"
+                          },
+                          {
+                            "MinutesAfter": 20,
+                            "Type": "Calculated",
+                            "Applicable": "Standard"
+                          }
+                        ]
+                      },
+                      "Maghrib": {
+                        "SalahRules": [
+                          {
+                            "MinutesAfter": "5",
+                            "Type": "Calculated",
+                            "Applicable": "AllYear"
+                          }
+                        ]
+                      },
+                      "Isha": {
+                        "SalahRules": [
+                          {
+                            "MinGap": 8,
+                            "ChangeBy": 15,
+                            "MinTime": "20:00",
+                            "MaxTime": "22:15",
+                            "Type": "Predictive",
+                            "Applicable": "Standard"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "Ramadaan"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "DST"
+                          }
+                        ]
+                      },
+                      "Jumma": [
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:00",
+                            "AzanTime": "12:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:30",
+                            "AzanTime": "13:00"
+                          }
+                        ],
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:00",
+                            "AzanTime": "12:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:30",
+                            "AzanTime": "13:00"
+                          }
+                        ],
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "15:45",
+                            "AzanTime": "15:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "14:00",
+                            "AzanTime": "13:40"
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-masjids-masjidid-iqamaconfig",
+        "description": "",
+        "requestBody": {},
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "API to set the Iqama Configuration Object for the masjid. ",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IqamaConfiguration"
+                },
+                "examples": {
+                  "Basic Example": {
+                    "value": {
+                      "GeneralConfig": {
+                        "IqamaChangeDay": "5",
+                        "IqamaChangeFrequency": 7,
+                        "IqamahChangeDates": []
+                      },
+                      "Fajr": {
+                        "SalahRules": [
+                          {
+                            "Type": "Predictive",
+                            "Applicable": "AllYear",
+                            "FromEndOfSalah": true,
+                            "MinGap": 27,
+                            "ChangeBy": 15,
+                            "MinTime": "5:00",
+                            "MaxTime": "6:30"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "Ramadaan"
+                          }
+                        ]
+                      },
+                      "Duhr": {
+                        "SalahRules": [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:00"
+                          }
+                        ]
+                      },
+                      "Asr": {
+                        "SalahRules": [
+                          {
+                            "FromEndOfSalah": true,
+                            "MinGap": 75,
+                            "ChangeBy": 15,
+                            "MinTime": "15:30",
+                            "MaxTime": "18:30",
+                            "Type": "Predictive",
+                            "Applicable": "DST"
+                          },
+                          {
+                            "MinutesAfter": 20,
+                            "Type": "Calculated",
+                            "Applicable": "Standard"
+                          }
+                        ]
+                      },
+                      "Maghrib": {
+                        "SalahRules": [
+                          {
+                            "MinutesAfter": "5",
+                            "Type": "Calculated",
+                            "Applicable": "AllYear"
+                          }
+                        ]
+                      },
+                      "Isha": {
+                        "SalahRules": [
+                          {
+                            "MinGap": 8,
+                            "ChangeBy": 15,
+                            "MinTime": "20:00",
+                            "MaxTime": "22:15",
+                            "Type": "Predictive",
+                            "Applicable": "Standard"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "Ramadaan"
+                          },
+                          {
+                            "Type": "Manual",
+                            "Applicable": "DST"
+                          }
+                        ]
+                      },
+                      "Jumma": [
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:00",
+                            "AzanTime": "12:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:30",
+                            "AzanTime": "13:00"
+                          }
+                        ],
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "13:00",
+                            "AzanTime": "12:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "13:30",
+                            "AzanTime": "13:00"
+                          }
+                        ],
+                        [
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "DST",
+                            "Time": "15:45",
+                            "AzanTime": "15:30"
+                          },
+                          {
+                            "Type": "Fixed",
+                            "Applicable": "Standard",
+                            "Time": "14:00",
+                            "AzanTime": "13:40"
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "put-masjids-masjidid-iqamaconfig",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IqamaConfiguration"
+              },
+              "examples": {
+                "Basic Example": {
+                  "value": {
+                    "GeneralConfig": {
+                      "IqamaChangeDay": "5",
+                      "IqamaChangeFrequency": 7,
+                      "IqamahChangeDates": []
+                    },
+                    "Fajr": {
+                      "SalahRules": [
+                        {
+                          "Type": "Predictive",
+                          "Applicable": "AllYear",
+                          "FromEndOfSalah": true,
+                          "MinGap": 27,
+                          "ChangeBy": 15,
+                          "MinTime": "5:00",
+                          "MaxTime": "6:30"
+                        },
+                        {
+                          "Type": "Manual",
+                          "Applicable": "Ramadaan"
+                        }
+                      ]
+                    },
+                    "Duhr": {
+                      "SalahRules": [
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "DST",
+                          "Time": "13:30"
+                        },
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "Standard",
+                          "Time": "13:00"
+                        }
+                      ]
+                    },
+                    "Asr": {
+                      "SalahRules": [
+                        {
+                          "FromEndOfSalah": true,
+                          "MinGap": 75,
+                          "ChangeBy": 15,
+                          "MinTime": "15:30",
+                          "MaxTime": "18:30",
+                          "Type": "Predictive",
+                          "Applicable": "DST"
+                        },
+                        {
+                          "MinutesAfter": 20,
+                          "Type": "Calculated",
+                          "Applicable": "Standard"
+                        }
+                      ]
+                    },
+                    "Maghrib": {
+                      "SalahRules": [
+                        {
+                          "MinutesAfter": "5",
+                          "Type": "Calculated",
+                          "Applicable": "AllYear"
+                        }
+                      ]
+                    },
+                    "Isha": {
+                      "SalahRules": [
+                        {
+                          "MinGap": 8,
+                          "ChangeBy": 15,
+                          "MinTime": "20:00",
+                          "MaxTime": "22:15",
+                          "Type": "Predictive",
+                          "Applicable": "Standard"
+                        },
+                        {
+                          "Type": "Manual",
+                          "Applicable": "Ramadaan"
+                        },
+                        {
+                          "Type": "Manual",
+                          "Applicable": "DST"
+                        }
+                      ]
+                    },
+                    "Jumma": [
+                      [
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "Standard",
+                          "Time": "13:00",
+                          "AzanTime": "12:30"
+                        },
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "DST",
+                          "Time": "13:30",
+                          "AzanTime": "13:00"
+                        }
+                      ],
+                      [
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "DST",
+                          "Time": "13:00",
+                          "AzanTime": "12:30"
+                        },
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "Standard",
+                          "Time": "13:30",
+                          "AzanTime": "13:00"
+                        }
+                      ],
+                      [
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "DST",
+                          "Time": "15:45",
+                          "AzanTime": "15:30"
+                        },
+                        {
+                          "Type": "Fixed",
+                          "Applicable": "Standard",
+                          "Time": "14:00",
+                          "AzanTime": "13:40"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ]
+      }
+    },
+    "/masjids/{masjidid}/salahsettings": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidid",
+          "in": "path",
+          "required": true,
+          "description": "Masjid ID"
+        }
+      ],
+      "get": {
+        "summary": "API to get Salah Settings for the Masjid",
+        "responses": {},
+        "operationId": "get-masjids-masjidid-salahsettings",
+        "description": "",
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "API to update Salah Settings",
+        "responses": {},
+        "operationId": "put-masjids-masjidid-salahsettings",
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ]
+      },
+      "delete": {
+        "summary": "API to delete Salah Settings for the masjid and revert to defaults. ",
+        "responses": {},
+        "operationId": "delete-masjids-masjidid-salahsettings",
+        "tags": [
+          "Masjid"
+        ],
+        "security": [
+          {
+            "apikey": []
+          },
+          {
+            "AuthToken(UserToken)": []
+          }
+        ]
+      }
+    },
+    "/masjids/{id}/streaming/status": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Masjid Stream Status (Includes status and URL)",
+        "tags": [
+          "Masjid"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "streamStatus": {
+                      "type": "string",
+                      "description": "Current status of the stream",
+                      "enum": [
+                        "Live",
+                        "Offline",
+                        "Unknown"
+                      ]
+                    },
+                    "streamURL": {
+                      "type": "string",
+                      "description": "When configured for the masjid. "
+                    }
+                  },
+                  "required": [
+                    "streamStatus"
+                  ]
+                }
+              }
+            }
+          },
+          "": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "streamStatus": {
+                      "type": "string"
+                    },
+                    "streamURL": {
+                      "type": "string"
+                    },
+                    "listeners": {
+                      "type": "string"
+                    },
+                    "serverDescription": {
+                      "type": "string"
+                    },
+                    "serverName": {
+                      "type": "string"
+                    },
+                    "serverURL": {
+                      "type": "string"
+                    },
+                    "streamStart": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "streamStatus"
+                  ]
+                },
+                "examples": {
+                  "Basic Example": {
+                    "value": {
+                      "streamStatus": "Live",
+                      "streamURL": "hhttps://www.masjidiapp.com/stream.mp3",
+                      "listeners": 100,
+                      "serverDescription": "My Stream server",
+                      "serverName": "MasjidiApp",
+                      "serverURL": "www.masjidiapp.com",
+                      "streamStart": "2020-02-26T00:07:38.491+00:00",
+                      "title": "Important Talk"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-masjids-id-streaming-status",
+        "security": [
+          {
+            "apikey": []
+          }
+        ]
+      }
+    },
+    "/masjidis/{masjidid}/media": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "masjidid",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "List of media files available for the masjid",
+        "tags": [],
+        "responses": {},
+        "operationId": "get-masjidis-masjidid-media",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add new new media to masjid",
+        "tags": [],
+        "responses": {},
+        "operationId": "post-masjidis-masjidid-media"
+      },
+      "delete": {
+        "summary": "Delete existing media for masjid",
+        "tags": [],
+        "responses": {},
+        "operationId": "delete-masjidis-masjidid-media"
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "",
+    "url": "http://apidocs.masjidiapp.com"
+  },
+  "security": [
+    {
+      "API Key": []
+    }
+  ],
+  "components": {
+    "links": {},
+    "callbacks": {},
+    "schemas": {
+      "HijriDate": {
+        "title": "HijriDate",
+        "type": "object",
+        "description": "Representation of Hijri Date",
+        "x-examples": {
+          "Example with date": {
+            "day": 1,
+            "month": 1,
+            "year": 1443,
+            "monthName": "muharram",
+            "monthnameArabic": "محرم",
+            "status": "sighted",
+            "date": "20191202",
+            "calendar_id": "1"
+          }
+        },
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "month": {
+            "type": "string"
+          },
+          "year": {
+            "type": "string"
+          },
+          "monthName": {
+            "type": "string"
+          },
+          "monthNameArabic": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "sighted",
+              "computed",
+              "waiting"
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "calendar_id": {
+            "$ref": "#/components/schemas/CalendarID"
+          }
+        },
+        "required": [
+          "day",
+          "month",
+          "year",
+          "monthName",
+          "monthNameArabic",
+          "status",
+          "date",
+          "calendar_id"
+        ]
+      },
+      "CalendarID": {
+        "type": "string",
+        "title": "CalendarID",
+        "enum": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "x-examples": {
+          "example-1": {}
+        }
+      },
+      "SalahAndIqamahTime": {
+        "title": "SalahAndIqamahTime",
+        "type": "object",
+        "x-examples": {
+          "Salah And Iqamah Time Sample": {
+            "fajr_start_time": "05:57 am",
+            "shuruq": "07:11 am",
+            "zuhr_start_time": "12:21 pm",
+            "asr_start_time": "03:52 pm",
+            "magrib_start_time": "05:35 pm",
+            "isha_start_time": "06:46 pm",
+            "date": {
+              "date": "2019-02-01 00:00:00.000000",
+              "timezone_type": 3,
+              "timezone": "America/Los_Angeles"
+            },
+            "hijri_date": {
+              "day": 1,
+              "month": 1,
+              "year": 1443,
+              "monthName": "muharram",
+              "monthnameArabic": "محرم",
+              "status": "sighted",
+              "date": "20191202",
+              "calendarID": "1"
+            },
+            "fajr_iqama": "06:30 AM",
+            "zuhr_iqama": "01:00 PM",
+            "asr_iqama": "04:15 PM",
+            "maghrib_iqama": "5:30 PM",
+            "isha_iqama": "08:00 PM",
+            "jumma": [
+              {
+                "jumma_azan": "12:30 PM",
+                "jumma_iqama": "01:00 PM"
+              },
+              {
+                "jumma_azan": "02:30 PM",
+                "jumma_iqama": "03:00 PM"
+              }
+            ]
+          }
+        },
+        "description": "Salah And Iqamah Time Object to be used for all APIS",
+        "properties": {
+          "fajr_start_time": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "shuruq": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "zuhr_start_time": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "asr_start_time": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "magrib_start_time": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "isha_start_time": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "date": {
+            "$ref": "#/components/schemas/MasjidiDate"
+          },
+          "hijri_date": {
+            "$ref": "#/components/schemas/HijriDate"
+          },
+          "fajr_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "zuhr_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "asr_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "maghrib_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "isha_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "jumma": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JummaIqamahTime"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "hijri_date"
+        ]
+      },
+      "JummaIqamahTime": {
+        "title": "JummaIqamahTime",
+        "type": "object",
+        "x-examples": {
+          "Jumma Example": {
+            "jumma_azan": "12:30 PM",
+            "jumma_iqama": "01:00 PM"
+          }
+        },
+        "properties": {
+          "jumma_azan": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          },
+          "jumma_iqama": {
+            "$ref": "#/components/schemas/MasjidiTime"
+          }
+        },
+        "required": [
+          "jumma_azan",
+          "jumma_iqama"
+        ]
+      },
+      "MasjidiTime": {
+        "type": "string",
+        "title": "MasjidiTime",
+        "description": "Salah or Iqamah time in the format h:i a (Per PHP)",
+        "example": "08:00 PM"
+      },
+      "MasjidiDate": {
+        "title": "MasjidiDate",
+        "type": "object",
+        "x-examples": {
+          "Masjidi Date": {
+            "date": "2019-02-01 00:00:00.000000",
+            "timezone_type": 3,
+            "timezone": "America/Los_Angeles"
+          }
+        },
+        "description": "Date to be used across all APIs",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2019-02-01 00:00:00.000000"
+          },
+          "timezone_type": {
+            "type": "string",
+            "example": "3"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "America/Los_Angeles"
+          }
+        },
+        "required": [
+          "date",
+          "timezone_type",
+          "timezone"
+        ]
+      },
+      "IqamaConfiguration": {
+        "title": "IqamaConfiguration",
+        "type": "object",
+        "properties": {
+          "GeneralConfig": {
+            "type": "object",
+            "properties": {
+              "IqamaChangeDay": {
+                "type": "string"
+              },
+              "IqamaChangeFrequency": {
+                "type": "string"
+              },
+              "IqamaChangeDates": {
+                "type": "string"
+              }
+            }
+          },
+          "Fajr": {
+            "type": "object",
+            "properties": {
+              "SalahRules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IqamaRule"
+                }
+              }
+            }
+          },
+          "Duhr": {
+            "type": "object",
+            "properties": {
+              "SalahRules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IqamaRule"
+                }
+              }
+            }
+          },
+          "Asr": {
+            "type": "object",
+            "properties": {
+              "SalahRules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IqamaRule"
+                }
+              }
+            }
+          },
+          "Maghrib": {
+            "type": "object",
+            "properties": {
+              "SalahRules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IqamaRule"
+                }
+              }
+            }
+          },
+          "Isha": {
+            "type": "object",
+            "properties": {
+              "SalahRules": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IqamaRule"
+                }
+              }
+            }
+          },
+          "Jumma": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IqamaRule"
+            }
+          }
+        }
+      },
+      "IqamaRule": {
+        "title": "SalahRule",
+        "type": "object",
+        "description": "",
+        "properties": {
+          "Type": {
+            "type": "string",
+            "enum": [
+              "Predictive",
+              "Fixed",
+              "Manual"
+            ]
+          },
+          "Applicable": {
+            "type": "string",
+            "enum": [
+              "AllYear",
+              "DST",
+              "Standard"
+            ]
+          },
+          "FromEndOfSalah": {
+            "type": "boolean"
+          },
+          "MinGap": {
+            "type": "number"
+          },
+          "ChangeBy": {
+            "type": "number"
+          },
+          "MinTime": {
+            "type": "string"
+          },
+          "MaxTime": {
+            "type": "string"
+          },
+          "Time": {
+            "type": "string"
+          },
+          "MinutesAfter": {
+            "type": "number"
+          },
+          "AzanTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "Type",
+          "Applicable"
+        ]
+      },
+      "SalahSetting": {
+        "title": "SalahSetting",
+        "type": "object",
+        "description": "Configuration object for calcuation of Salah starting and ending time. ",
+        "properties": {
+          "calcMethod": {
+            "type": "string",
+            "default": 1,
+            "description": "Calculation methods providing defaults. 1 for University of Islamic Sciences, Karachi. 2 for Islamic Society of North America (ISNA). 3 for Muslim World League (MWL). 4 for Umm al-Qura, Makkah. 5 for Egyptian General Authority of Survey",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ]
+          },
+          "asrMethod": {
+            "type": "string",
+            "default": 2,
+            "description": "Asr Calculation Method. 1 for Shafii. 2 for Hanafi",
+            "enum": [
+              "1",
+              "2"
+            ]
+          },
+          "fajrAngle": {
+            "type": "string",
+            "default": 18,
+            "description": "Fajr angle. This impacts fajr star time. Usually 18 or 15 degrees. "
+          },
+          "ishaAngle": {
+            "type": "string",
+            "default": 18,
+            "description": "Impacts isha start time. Usually 15 or 18 degrees. "
+          },
+          "zuhrOffset": {
+            "type": "string",
+            "default": 5,
+            "description": "Time between Zawal and Zuhr start time. Usually 5 minutes. "
+          },
+          "maghribOffset": {
+            "type": "string",
+            "default": 0,
+            "description": "Masjids use this to add safety between start time and azan. "
+          }
+        }
+      },
+      "Masjid": {
+        "title": "Masjid",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Internal Masjid ID in Masjidi Database"
+          },
+          "masjid_id": {
+            "type": "string",
+            "description": "Public Identifier of the Masjid. All subsequent operations on the masjid are performed using Masjid_ID"
+          },
+          "title": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "zip": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "phone_number": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "timezoneId": {
+            "type": "string"
+          },
+          "timezone_name": {
+            "type": "string"
+          },
+          "denomination": {
+            "type": "string"
+          },
+          "contact_email": {
+            "type": "string"
+          },
+          "web_url": {
+            "type": "string"
+          },
+          "latitude": {
+            "type": "string"
+          },
+          "longitude": {
+            "type": "string"
+          },
+          "supported": {
+            "type": "string"
+          },
+          "display": {
+            "type": "string"
+          },
+          "support_notes": {
+            "type": "string"
+          },
+          "fajr_start_time": {
+            "type": "string"
+          },
+          "fajr_iqama_time": {
+            "type": "string"
+          },
+          "shuruq": {
+            "type": "string"
+          },
+          "zuhr_start_time": {
+            "type": "string"
+          },
+          "zuhr_iqama_time": {
+            "type": "string"
+          },
+          "asr_start_time": {
+            "type": "string"
+          },
+          "asr_iqama_time": {
+            "type": "string"
+          },
+          "magrib_start_time": {
+            "type": "string"
+          },
+          "isha_start_time": {
+            "type": "string"
+          },
+          "isha_iqama_time": {
+            "type": "string"
+          },
+          "jumma1_azan": {
+            "type": "string"
+          },
+          "jumma1_iqama": {
+            "type": "string"
+          },
+          "jumma2_azan": {
+            "type": "string"
+          },
+          "jumma2_iqama": {
+            "type": "string"
+          },
+          "time_for": {
+            "type": "string"
+          },
+          "last_iqamah_time_change": {
+            "type": "string"
+          },
+          "last_server_iqamah_time_change": {
+            "type": "string"
+          },
+          "update_failing_since": {
+            "type": "string"
+          },
+          "last_updated": {
+            "type": "string"
+          },
+          "last_updated_by": {
+            "type": "string"
+          },
+          "created_date": {
+            "type": "string"
+          },
+          "created_by": {
+            "type": "string"
+          },
+          "masjid_logo": {
+            "type": "string"
+          },
+          "audio_broadcast_url": {
+            "type": "string"
+          },
+          "": {
+            "type": "string"
+          }
+        },
+        "x-examples": {
+          "Masjid Example": [
+            {
+              "id": "4947",
+              "masjid_id": "50059",
+              "title": "Masjid Zakariya",
+              "address": "42412 Albrae Street",
+              "city": "Fremont",
+              "state": "CA",
+              "zip": "94538",
+              "country": "US",
+              "phone_number": "(510) 661-0352",
+              "timezone": "-7.0",
+              "timezoneId": "America/Los_Angeles",
+              "timezone_name": "Pacific Daylight Time",
+              "denomination": "Sunni (Traditional)",
+              "contact_email": null,
+              "web_url": "http://www.icfbayarea.org",
+              "latitude": "37.5092926",
+              "longitude": "-121.9718018",
+              "supported": "1",
+              "display": "1",
+              "support_notes": null,
+              "fajr_start_time": "05:46 am",
+              "fajr_iqama_time": "06:30 am",
+              "shuruq": "07:03 am",
+              "zuhr_start_time": "11:57 am",
+              "zuhr_iqama_time": "01:00 pm",
+              "asr_start_time": "03:11 pm",
+              "asr_iqama_time": "03:30 pm",
+              "magrib_start_time": "04:53 pm",
+              "isha_start_time": "06:07 pm",
+              "isha_iqama_time": "07:00 pm",
+              "jumma1_azan": "12:30 pm",
+              "jumma1_iqama": "01:00 pm",
+              "jumma2_azan": "01:30 pm",
+              "jumma2_iqama": "02:00 pm",
+              "time_for": "",
+              "last_iqamah_time_change": "2018-11-30 00:07:38",
+              "last_server_iqamah_time_change": "",
+              "update_failing_since": null,
+              "last_updated": "2018-11-30 00:07:38",
+              "last_updated_by": null,
+              "created_date": null,
+              "created_by": null,
+              "masjid_logo": "https://pbs.twimg.com/profile_images/378800000859780242/fGjmzo_H_normal.jpeg",
+              "audio_broadcast_url": null,
+              "distance": "0.7"
+            }
+          ]
+        }
+      },
+      "Media": {
+        "title": "Media",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "contentLink": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "contentLength": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "apikey": {
+        "name": "apikey",
+        "type": "apiKey",
+        "in": "header",
+        "description": ""
+      },
+      "AuthToken(UserToken)": {
+        "name": "AuthToken",
+        "type": "apiKey",
+        "in": "header"
+      }
+    }
+  }
+}
