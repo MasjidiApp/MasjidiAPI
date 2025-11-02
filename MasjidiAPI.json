@@ -9,10 +9,6 @@
     {
       "description": "Development API",
       "url": "https://api.masjidiapp.com/dev-v2"
-    },
-    {
-      "description": "Local Machine",
-      "url": "http://localhost:8888/salahtime/src/api/masjidi/v1"
     }
   ],
   "info": {
